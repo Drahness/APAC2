@@ -1,0 +1,32 @@
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
+    testImplementation 'junit:junit:4.12'
+}
+
+
+run {
+    standardInput = System.in
+    standardOutput = System.out
+}
+test {
+    useJUnit()
+    reports {
+        junitXml.enabled = true
+    }
+    //testLogging {
+        // Show that tests are run in the command-line output
+    //    events 'started', 'passed'
+   // }
+}   
+
+mainClassName='com.ieseljust.ad.myDBMS.DBMan'
+
+
