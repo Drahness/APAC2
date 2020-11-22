@@ -21,7 +21,10 @@ public class DatabaseUtils {
 		while(rs.next()) {
 			Map<String,String> map = new HashMap<>();
 			for (String columnName : columnNames) {
-				map.put(columnName, rs.getObject(columnName).toString());
+				Object o = rs.getObject(columnName);
+				if(o != null) {
+					map.put(columnName, o.toString());
+				}
 			}
 			table.add(map);
 		}

@@ -1,4 +1,4 @@
-import static org.junit.Assert.*;
+/*import static org.junit.Assert.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -111,3 +111,4 @@ public class TestDatabaseUtils {
 	}
 
 }
+*/

@@ -13,7 +13,7 @@ import com.ieseljust.ad.myDBMS.ConnectionManager;
 public class TestConnectionManager {
 
 	public static ConnectionManager cm;
-	
+	/*
 	@BeforeClass
 	public static void preinit() throws IOException {
 		cm = new ConnectionManager("localhost","3306","root","1234");
@@ -29,7 +29,8 @@ public class TestConnectionManager {
 	}
 	@Test
 	public void testScriptRunner() {
-		int[] tests = new int[] {100,10000,100000};
+		int[] tests = new int[1] {100,10000,100000}
+				;
 		boolean[] btests = new boolean[tests.length];
 		
 		Random r = new Random();
@@ -61,5 +62,5 @@ public class TestConnectionManager {
 		return true;
 		
 	}
-
+*/
 }

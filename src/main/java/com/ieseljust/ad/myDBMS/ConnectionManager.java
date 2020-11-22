@@ -67,7 +67,7 @@ public class ConnectionManager implements Shell{
 		prop.put("user", user);
 		prop.put("password", pass);
 		prop.put("serverTimezone", "UTC");
-		connection = DriverManager.getConnection(String.format("jdbc:mysql://%s:%s/employees", server, port), prop);
+		connection = DriverManager.getConnection(String.format("jdbc:mysql://%s:%s", server, port), prop);
 		return connection;
 	}
 
@@ -116,7 +116,7 @@ public class ConnectionManager implements Shell{
 					dbman.connectDatabase();
 					dbman.startShell();
 				} catch (SQLException e) {
-					ConsoleColors.staticPrintColoredString(String.format("Error al conectar con la base de datos %s: "+e,subcommand[1]), ConsoleColors.RED);
+					ConsoleColors.staticPrintColoredString(String.format("Error al conectar con la base de datos %s: \n\t"+e,subcommand[1]), ConsoleColors.RED);
 				}
 				break;
 			case "import":
