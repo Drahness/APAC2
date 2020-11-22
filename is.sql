@@ -1,1 +1,0 @@
-Create database if not exists testdata;Create table if not exists testdata.testTable (col1 integer);
