@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class ConnectionManager implements Shell{
+public class ConnectionManager implements Shell {
 
 	private String server;
 	private String port;
@@ -181,7 +181,7 @@ public class ConnectionManager implements Shell{
 				list.add(sb.toString());
 			}
 		} catch (IOException e) {
-			ConsoleColors.staticPrintColoredString("Error leyendo el archivo "+f.getName() , ConsoleColors.RED);
+			ConsoleColors.staticPrintColoredString("Error leyendo el archivo : "+f.getName() , ConsoleColors.RED);
 		}
 		return list;
 	}

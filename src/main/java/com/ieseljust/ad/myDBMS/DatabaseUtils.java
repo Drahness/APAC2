@@ -3,12 +3,13 @@ package com.ieseljust.ad.myDBMS;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DatabaseUtils {	
+public class DatabaseUtils {
 	public static List<Map<String,String>> getMapFromResultSet(ResultSet rs, String[] columnNames) throws SQLException {
 		if(columnNames == null) {
 			ResultSetMetaData rsmt = rs.getMetaData();
@@ -105,6 +106,19 @@ public class DatabaseUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+	}
+	
+	public static void printResultSetMetadata(ResultSet rs) {
+		try {
+			List<Map<String,String>> table = getMapFromResultSetMetaData(rs);
+			printFormattedTable(table);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static List<Map<String,String>> getMapFromResultSetMetaData(ResultSet rs) throws SQLException {
+		return new CUDHelper(rs).getMap();
 	}
 }

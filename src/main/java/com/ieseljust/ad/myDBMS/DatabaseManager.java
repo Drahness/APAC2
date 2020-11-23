@@ -67,16 +67,6 @@ class DatabaseManager implements Shell {
 	}
 
 	public void showTables() {
-		// TO-DO: Mostra un llistat amb les taules de la base de dades
-
-		// Passos:
-		// 1. Establir la connexió a la BD
-		// 2. Obtenir les metadades
-		// 3. Recórrer el resultset resultant mostrant els resultats
-		// 4. Tancar la connexió
-
-		// Recordeu el tractament d'errors
-
 		try {
 			DatabaseUtils.printResultSet(this.connection.getMetaData().getTables(this.dbname, null, null, null));
 		} catch (SQLException e) {
@@ -104,14 +94,20 @@ class DatabaseManager implements Shell {
 		// - Gestionar els diferents errors
 		// - Si la clau primària de la taula és autoincremental, que ens mostre el
 		// valor d'aquesta quan acabe.
-
+		
+		 
 	}
 
 	public void showDescTable(String table) {
 		// TO-DO: Mostra la descripció de la taula indicada,
 		// mostrant: nom, tipus de dada i si pot tindre valor no nul
 		// Informeu també de les Claus Primàries i externes
-
+		try {
+			ResultSet rs = new SQLExecutor(this.connection, String.format("SELECT * FROM %s.%s limit 1;",this.dbname,table)).executeQuery();
+			DatabaseUtils.printResultSetMetadata(rs);
+		} catch (SQLException e) {
+			ConsoleColors.staticPrintColoredString(String.format("Error al mostrar la descripcio de la taula %s.\n\t",table) + e, ConsoleColors.RED);
+		}
 	}
 
 	public boolean startShell(String command) {
@@ -122,7 +118,6 @@ class DatabaseManager implements Shell {
 		case "quit":
 			break;
 		default:
-
 			String[] subcommand = command.split(" ");
 			switch (subcommand[0]) {
 			case "describe":
@@ -131,7 +126,9 @@ class DatabaseManager implements Shell {
 			case "insert":
 				this.insertIntoTable(subcommand[1]);
 				break;
-
+			case "select":
+				this.executeSelect(command);
+				break;
 			default:
 				System.out.println(ConsoleColors.RED + "Unknown db option" + ConsoleColors.RESET);
 				return false;
@@ -145,5 +142,14 @@ class DatabaseManager implements Shell {
 		return ConsoleColors.GREEN_BOLD_BRIGHT + "# (" + this.user + ") on " + this.server + ":" + this.port + "/"
 				+ this.dbname + "> " + ConsoleColors.RESET;
 	}
+	
+	public void executeSelect(String query) {
+		try {
+			DatabaseUtils.printResultSet(new SQLExecutor(this.connection, query).executeQuery());
+		} catch (SQLException e) {
+			ConsoleColors.staticPrintColoredString("Error en la consulta: \n\t"+e, ConsoleColors.RED);
+		}
+	}
+
 
 }
