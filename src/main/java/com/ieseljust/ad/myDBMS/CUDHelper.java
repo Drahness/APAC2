@@ -128,7 +128,7 @@ public class CUDHelper {
 			
 		}
 	}
-	
+	 // TODO REFACTORIZAR PARA QUE SEA CON EL METODO DATABASEMETADATA DA MENOS POR CULO.
 	public CUDHelper(ResultSet rs) throws SQLException {
 		this(rs.getMetaData());
 	}
