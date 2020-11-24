@@ -102,7 +102,10 @@ public class CUDHelper {
 	public boolean updateIsPermitted() {
 		return metadataOfASingleTable();
 	}
-	
+	public CUDHelper(DatabaseMetadata dbmd, String table) {
+		// TODO Auto-generated constructor stub
+	}
+	@Deprecated
 	public CUDHelper(Connection conn, ResultSet rs) throws SQLException {
 		this(rs);
 		isWithKeys = true;
@@ -128,11 +131,12 @@ public class CUDHelper {
 			
 		}
 	}
+	@Deprecated
 	 // TODO REFACTORIZAR PARA QUE SEA CON EL METODO DATABASEMETADATA DA MENOS POR CULO.
 	public CUDHelper(ResultSet rs) throws SQLException {
 		this(rs.getMetaData());
 	}
-
+	@Deprecated
 	private CUDHelper(ResultSetMetaData rsmd) throws SQLException {
 		columnCount = rsmd.getColumnCount();
 		autoincrement = new boolean[columnCount];
