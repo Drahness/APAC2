@@ -103,7 +103,7 @@ class DatabaseManager implements Shell {
 		// mostrant: nom, tipus de dada i si pot tindre valor no nul
 		// Informeu també de les Claus Primàries i externes
 		try {
-			ResultSet rs = new SQLExecutor(this.connection, String.format("SELECT * FROM %s.%s limit 1;",this.dbname,table)).executeQuery();
+			ResultSet rs = new SQLBuilder(this.connection, String.format("SELECT * FROM %s.%s limit 1;",this.dbname,table)).executeQuery();
 			DatabaseUtils.printResultSetMetadata(rs);
 		} catch (SQLException e) {
 			ConsoleColors.staticPrintColoredString(String.format("Error al mostrar la descripcio de la taula %s.\n\t",table) + e, ConsoleColors.RED);
@@ -145,7 +145,7 @@ class DatabaseManager implements Shell {
 	
 	public void executeSelect(String query) {
 		try {
-			DatabaseUtils.printResultSet(new SQLExecutor(this.connection, query).executeQuery());
+			DatabaseUtils.printResultSet(new SQLBuilder(this.connection, query).executeQuery());
 		} catch (SQLException e) {
 			ConsoleColors.staticPrintColoredString("Error en la consulta: \n\t"+e, ConsoleColors.RED);
 		}

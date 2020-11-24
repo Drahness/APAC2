@@ -53,7 +53,7 @@ public class DBMan {
 		prop.put("serverTimezone", "UTC");
 		prop.put("generateSimpleParameterMetadata", "true");
     	Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/employees",prop);
-    	ResultSet rs = new SQLExecutor(conn, "select * from employees.employees e \r\n" + 
+    	ResultSet rs = new SQLBuilder(conn, "select * from employees.employees e \r\n" + 
     			"right join employees.dept_emp de on de.emp_no = e.emp_no \r\n" + 
     			"left join employees.departments d on d.dept_no = de.dept_no  \nlimit 1").executeQuery();
 
@@ -99,7 +99,7 @@ public class DBMan {
         stmt.execute(query);
         System.out.println("Table created ........");*/
     	
-DatabaseUtils.printResultSetMetadata(conn,    	new SQLExecutor(conn, "select * from testdata.testtypes t ;").executeQuery());
+DatabaseUtils.printResultSetMetadata(conn,    	new SQLBuilder(conn, "select * from testdata.testtypes t ;").executeQuery());
     	//System.out.println(new ResultSetMetadata(rs).getInsertStatement());
     	/*ResultSet rs = conn.getMetaData().getTables(null, "employees", null, null);
     	ResultSetMetaData rsm = rs.getMetaData();

@@ -5,10 +5,32 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SQLExecutor {
+public class SQLBuilder {
 	private Connection conn;
 	private String sql;
-	public SQLExecutor(Connection conn, String sql) {
+	private int concurrency = ResultSet.CONCUR_READ_ONLY;
+	private int scroll_sensitivity = ResultSet.TYPE_SCROLL_INSENSITIVE;
+	
+	public SQLBuilder setConcurrency(int concurrency) {
+		this.concurrency = concurrency;
+		return this;
+	}
+	
+	public SQLBuilder setScroll_Sensitivity(int scroll_sensitivity) {
+		this.scroll_sensitivity = scroll_sensitivity;
+		return this;
+	}
+	public SQLBuilder setSQL(String sql) {
+		this.sql = sql;
+		return this;
+	}
+	public SQLBuilder setConnection(Connection conn) {
+		this.conn = conn;
+		return this;
+	}
+	public SQLBuilder() {}
+	
+	public SQLBuilder(Connection conn, String sql) {
 		this.conn = conn;
 		this.sql = sql;
 	}
@@ -31,7 +53,7 @@ public class SQLExecutor {
 	}
 	
 	public ResultSet executeQuery(String sql) throws SQLException {
-		Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_UPDATABLE);
+		Statement st = conn.createStatement(scroll_sensitivity,concurrency);
 		return st.executeQuery(sql);
 	}
 	

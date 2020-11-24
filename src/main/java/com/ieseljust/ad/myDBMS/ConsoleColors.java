@@ -98,7 +98,9 @@ public class ConsoleColors {
     	return getColoredString(string, COLORS[color]);
     }
 
-    
+    public static void printError(String string) {
+    	ConsoleColors.staticPrintColoredString(string, RED);
+    }
     public void printLastColorString(String string) {
     	System.out.println(lastColor+string);
     }

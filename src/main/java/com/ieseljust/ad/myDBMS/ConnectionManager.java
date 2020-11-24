@@ -142,7 +142,7 @@ public class ConnectionManager implements Shell {
 					for (i = 0 ; i < statementsInFile.size(); i++) {
 						orden = statementsInFile.get(i);
 						System.out.println("Orden N"+i+": "+orden);
-						new SQLExecutor(this.connection, orden).execute();
+						new SQLBuilder(this.connection, orden).execute();
 					}
 					connection.commit();
 					connection.setAutoCommit(true);

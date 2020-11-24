@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.ieseljust.ad.myDBMS.DatabaseUtils;
 import com.ieseljust.ad.myDBMS.CUDHelper;
-import com.ieseljust.ad.myDBMS.SQLExecutor;
+import com.ieseljust.ad.myDBMS.SQLBuilder;
 
 public class TestCUDHelper {
 	public static Connection conn;
@@ -33,7 +33,7 @@ public class TestCUDHelper {
 	@Test
 	public void testSetValueMethod() throws Exception {
 		
-		CUDHelper rsm = new CUDHelper(conn ,new SQLExecutor(conn, "select * from employees.employees e;").executeQuery());
+		CUDHelper rsm = new CUDHelper(conn ,new SQLBuilder(conn, "select * from employees.employees e;").executeQuery());
 		System.out.println(rsm.getInsertStatement());
 		DatabaseUtils.printFormattedTable(rsm.getMap());
 		PreparedStatement ps = conn.prepareStatement(rsm.getInsertStatement());
