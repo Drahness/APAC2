@@ -29,7 +29,6 @@ public class ConnectionManager implements Shell {
 
 	public Connection connectDBMS() {
 		try {
-			System.out.println("Connecting...");
 			Properties prop = new Properties();
 			prop.put("user", user);
 			prop.put("password", pass);
@@ -113,10 +112,11 @@ public class ConnectionManager implements Shell {
 			case "use":
 				try {
 					DatabaseManager dbman = new DatabaseManager(server,port,user,pass,subcommand[1]);
-					dbman.connectDatabase();
-					dbman.startShell();
+					if(dbman.connectDatabase() != null); {
+						dbman.startShell();
+					}
 				} catch (SQLException e) {
-					ConsoleColors.staticPrintColoredString(String.format("Error al conectar con la base de datos %s: \n\t"+e,subcommand[1]), ConsoleColors.RED);
+					ConsoleColors.staticPrintColoredString(e.toString(), ConsoleColors.RED);
 				}
 				break;
 			case "import":

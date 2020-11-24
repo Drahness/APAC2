@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,9 +78,12 @@ public class DatabaseUtils {
 	public static int getMaxLenghtOfColumn(List<Map<String,String>> table, String column) {
 		int max = column.length();
 		for (Map<String, String> map : table) {
-			int size = map.get(column).length();
-			if(map.get(column).length() > max) {
-				max = size;
+			String obj = map.get(column);
+			if(obj != null) {
+				int size = map.get(column).length();
+				if(map.get(column).length() > max) {
+					max = size;
+				}
 			}
 		}
 		return max;
@@ -108,24 +110,8 @@ public class DatabaseUtils {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void printResultSetMetadata(ResultSet rs) {
-		try {
-			List<Map<String,String>> table = new CUDHelper(rs).getMap();
-			printFormattedTable(table);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public static void printResultSetMetadata(Connection conn, ResultSet rs) {
-		try {
-			List<Map<String,String>> table = new CUDHelper(conn,rs).getMap();
-			printFormattedTable(table);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void printTableMetadata(Connection conn, String catalog ,String table, boolean b) throws SQLException {
+		List<Map<String,String>> listTable = new TableMetadata(conn.getMetaData(),catalog,table).getMetadata(b);
+		printFormattedTable(listTable);
 	}
 }

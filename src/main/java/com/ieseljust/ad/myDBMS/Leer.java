@@ -27,7 +27,7 @@ public class Leer {
 		String respuesta = null;
 		do {
 			try {
-				System.out.print(mensaje);
+				System.out.print(ConsoleColors.YELLOW+"# "+mensaje+ConsoleColors.RESET);
 				respuesta = entradaConsola.readLine();
 			} // ()
 			catch (IOException ex) {
@@ -157,7 +157,7 @@ public class Leer {
 	
 	public static java.util.Date leerFecha(String mensaje) {
 		try {
-			String posibleFecha = leerTexto(mensaje + " Formato: yyyy/MM/dd -> ");
+			String posibleFecha = leerTexto(mensaje.replace("$", "yyyy/MM/dd$"));
 			if(posibleFecha.equals("")) {
 				return new Date(0L);
 			} else {
@@ -181,7 +181,7 @@ public class Leer {
 		while (!aconseguit) {
 			try {
 				String texto = leerTexto(mensaje);
-				if(texto.isBlank()) {
+				if(texto.isEmpty()) {
 					n = new BigDecimal("0.0");
 				} else {
 					n = new BigDecimal(texto);
@@ -201,7 +201,7 @@ public class Leer {
 		while (!aconseguit) {
 			try {
 				String texto = leerTexto(mensaje);
-				if(texto.isBlank()) {
+				if(texto.isEmpty()) {
 					n = 0L;
 				} else {
 					n = Long.parseLong(texto);

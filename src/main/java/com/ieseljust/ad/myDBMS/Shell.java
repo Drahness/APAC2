@@ -11,8 +11,7 @@ public interface Shell {
 			command = keyboard.nextLine();
 			startShell(command);
 		} while (!command.equals("quit"));
-		keyboard.close();
-        }
+    }
     public String getShellString();
 	public boolean startShell(String command);
 }

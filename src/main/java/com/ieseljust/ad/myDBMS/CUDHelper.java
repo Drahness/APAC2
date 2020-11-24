@@ -2,83 +2,68 @@ package com.ieseljust.ad.myDBMS;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CUDHelper {
 	public static Map<Integer,String> types;
 	public static Map<Integer,String> nullability;
-	private int columnCount;
-	private boolean isWithKeys = false;
-	private boolean[] primary;
-	private boolean[] autoincrement;
-	private int[] type;
-	private int[] precision;
-	private int[] nullable;
-	private int[] scale;
-	private boolean[] read_only;
-	private boolean[] case_sensitive;
-	private boolean[] writable;
-	private int[] display_size;
-	private boolean[] signed;
-	private boolean[] definitely_writable;
-	private boolean[] searchable;
-	private String[] table_name;
-	private String[] name;
-	private String[] catalog;
-	private String[] classArr;
+	public static Map<String,Integer> columnsMetadataIDs;
+	private Connection conn;
+	private String catalog;
+	private String tablename;
+	private TableMetadata metadata;
 	
-	public boolean metadataOfASingleTable() {
-		String table = table_name[0];
-		String catalog = table_name[0];
-		for (int i = 0 ; i < columnCount ; i++) {
-			String table2 = table_name[i];
-			String catalog2 = table_name[i];
-			if(!table.equals(table2) || !catalog.equals(catalog2) ) {
-				return false;
+	public int executeInsertUser() throws SQLException {
+		PreparedStatement ps = conn.prepareStatement(getInsertStatement(),Statement.RETURN_GENERATED_KEYS);
+		int parameterIndex = 1;
+		for (int i = 0; i < metadata.getColumnCount(); i++) {
+			if(fieldIsInsertable(i)) {
+				this.setValue(ps, metadata.getDataType(i), parameterIndex, i);
+				parameterIndex++;
 			}
 		}
-		return true;
-	}
-	
-	public int executeInsertUser(Connection conn) throws SQLException {
-		PreparedStatement ps = conn.prepareStatement(getInsertStatement());
-		for (int i = 0; i < columnCount; i++) {
-			this.setValue(ps, type[i], i+1, i);
+		int rows = ps.executeUpdate();
+		if(metadata.isShowPK()) {
+			ResultSet ids = ps.getGeneratedKeys();
+			while (ids.next()) {
+				ConsoleColors.staticPrintColoredString("ID: "+ids.getInt(1),ConsoleColors.GREEN_BOLD_BRIGHT);
+			}
 		}
-		return ps.executeUpdate();
+		return rows;
 	}
 	
-	public String getInsertStatement() {
+	public int executeInsert(int[] dataTypes, Object...values) {
+		if(values.length != dataTypes.length) {
+			throw new RuntimeException("You forgot something? Array sizes are not equal");
+		}
+		return 0;
+	}
+	
+	private String getInsertStatement() {
 		StringBuilder sb = new StringBuilder();
-		if(insertIsPermitted()) {
-			sb.append("INSERT INTO ").append(catalog[0]).append(".").append(table_name[0]);
-			sb.append(getParametrizedText());
-		}
-		else {
-			throw new NotPermittedException("insert");
-		}
+		sb.append("INSERT INTO ").append(catalog).append(".").append(tablename);
+		sb.append(getParametrizedText());
 		return sb.toString();
 	}
 	
 	private String getParametrizedText() {
 		StringBuilder interrogants = new StringBuilder();
 		StringBuilder col_names = new StringBuilder();
-		for (int i = 0 ; i < columnCount; i++) {
+		for (int i = 0 ; i < metadata.getColumnCount(); i++) {
 			if(fieldIsInsertable(i)) {
 				if(interrogants.length()==0) {
-					col_names.append(' ').append('(').append(name[i]);
+					col_names.append(' ').append('(').append(metadata.getColumnName(i));
 					interrogants.append(' ').append('(').append('?');
 				} else {
-					col_names.append(',').append(' ').append(name[i]);
+					col_names.append(',').append(' ').append(metadata.getColumnName(i));
 					interrogants.append(',').append(' ').append('?');
 				}
 			}
@@ -91,118 +76,17 @@ public class CUDHelper {
 	
 	
 	public boolean fieldIsInsertable(int i) {
-		return !autoincrement[i] && writable[i] && !read_only[i];
+		return !metadata.isAutoIncremental(i);
 	}
-	public boolean insertIsPermitted() {
-		return metadataOfASingleTable();
+	
+	public CUDHelper(Connection conn ,String catalog, String table) throws SQLException {
+		this.catalog = catalog;
+		this.metadata = new TableMetadata(conn.getMetaData(), catalog, table);
+		this.tablename = table;
+		this.conn = conn;
 	}
-	public boolean deleteIsPermitted() {
-		return metadataOfASingleTable();
-	}
-	public boolean updateIsPermitted() {
-		return metadataOfASingleTable();
-	}
-	public CUDHelper(DatabaseMetadata dbmd, String table) {
-		// TODO Auto-generated constructor stub
-	}
-	@Deprecated
-	public CUDHelper(Connection conn, ResultSet rs) throws SQLException {
-		this(rs);
-		isWithKeys = true;
-		String lastTable = null;
-		List<String> PKs = new ArrayList<>();
-		//List<String> FKs = new ArrayList<>();
-		for (int i = 0 ; i < columnCount; i++) {
-			String tablename = table_name[i];
-			String catalogg = catalog[i];
-			if(!tablename.equals(lastTable)) {
-				ResultSet keys = conn.getMetaData().getPrimaryKeys(catalogg, null , tablename);
-				while(keys.next()) {
-					PKs.add(keys.getString("COLUMN_NAME"));
-				}
-				lastTable = tablename;
-			}
-			if(!PKs.isEmpty() && PKs.contains(name[i])) {
-				PKs.remove(name[i]);
-				primary[i] = true;
-			} else {
-				primary[i] = false;
-			}
-			
-		}
-	}
-	@Deprecated
-	 // TODO REFACTORIZAR PARA QUE SEA CON EL METODO DATABASEMETADATA DA MENOS POR CULO.
-	public CUDHelper(ResultSet rs) throws SQLException {
-		this(rs.getMetaData());
-	}
-	@Deprecated
-	private CUDHelper(ResultSetMetaData rsmd) throws SQLException {
-		columnCount = rsmd.getColumnCount();
-		autoincrement = new boolean[columnCount];
-		type = new int[columnCount];
-		precision = new int[columnCount];
-		nullable = new int[columnCount];
-		scale = new int[columnCount];
-		read_only = new boolean[columnCount];
-		case_sensitive = new boolean[columnCount];
-		writable = new boolean[columnCount];
-		display_size = new int[columnCount];
-		signed = new boolean[columnCount];
-		definitely_writable = new boolean[columnCount];
-		primary = new boolean[columnCount];
-		searchable = new boolean[columnCount];
-		table_name = new String[columnCount];
-		name = new String[columnCount];
-		catalog = new String[columnCount];
-		classArr = new String[columnCount];
-		for (int i = 1; i < 1+rsmd.getColumnCount(); i++) {
-			int iArray = i-1;
-			autoincrement[iArray] =rsmd.isAutoIncrement(i);
-			type[iArray] =rsmd.getColumnType(i);
-			precision[iArray] =rsmd.getPrecision(i);
-			nullable[iArray] = rsmd.isNullable(i);
-			read_only[iArray] =rsmd.isReadOnly(i);
-			scale[iArray] =rsmd.getScale(i);
-			case_sensitive[iArray] =rsmd.isCaseSensitive(i);
-			writable[iArray] =rsmd.isWritable(i);
-			signed[iArray] =rsmd.isSigned(i);
-			display_size[iArray] =rsmd.getColumnDisplaySize(i);
-			definitely_writable[iArray] =rsmd.isDefinitelyWritable(i);
-			searchable[iArray] =rsmd.isSearchable(i);
-			table_name[iArray] =rsmd.getTableName(i);
-			name[iArray] =rsmd.getColumnLabel(i);
-			catalog[iArray] = rsmd.getCatalogName(i);
-			classArr[iArray] = rsmd.getColumnClassName(i);
-		}
-	}
-	public List<Map<String,String>> getMap() {
-		List<Map<String,String>> mappedMetadata = new ArrayList<>();
-		for (int i = 0; i < columnCount; i++) {
-			Map<String,String> map = new HashMap<String,String>();
-			map.put("autoincrement",String.valueOf(autoincrement[i]));
-			map.put("type",types.get(type[i]));
-			//map.put("precision",String.valueOf(precision[i]));
-			map.put("nullable",nullability.get(nullable[i]));
-			//map.put("read_only",String.valueOf(read_only[i]));
-			//map.put("scale",String.valueOf(scale[i]));
-			//map.put("case_sensitive",String.valueOf(case_sensitive[i]));
-			//map.put("writable",String.valueOf(writable[i]));
-			//map.put("signed",String.valueOf(signed[i]));
-			////map.put("display_size",String.valueOf(display_size[i]));
-			//map.put("definitely_writable",String.valueOf(definitely_writable[i]));
-			//map.put("searchable",String.valueOf(searchable[i]));
-			map.put("table_name",String.valueOf(table_name[i]));
-			map.put("column-name",String.valueOf(name[i]));
-			map.put("catalog",String.valueOf(catalog[i]));
-			//map.put("java_class",String.valueOf(classArr[i]));
-			if (isWithKeys) {
-				map.put("primary_key",String.valueOf(primary[i]));
-			}
-			mappedMetadata.add(map);
-		}
-		return mappedMetadata;
-	}
+
+	
 	static {
 		types = new HashMap<>();
 		types.put(Types.BIT,"BIT");
@@ -245,9 +129,9 @@ public class CUDHelper {
 		types.put(Types.TIME_WITH_TIMEZONE, "TIME_WITH_TIMEZONE");
 		types.put(Types.TIMESTAMP_WITH_TIMEZONE, "TIMESTAMP_WITH_TIMEZONE");
 		nullability = new HashMap<Integer,String>();
-		nullability.put(ResultSetMetaData.columnNoNulls, "No Nulls");
-		nullability.put(ResultSetMetaData.columnNullable, "Nullable");
-		nullability.put(ResultSetMetaData.columnNullableUnknown, "NullableUnknown");
+		nullability.put(DatabaseMetaData.columnNoNulls, "No Nulls");
+		nullability.put(DatabaseMetaData.columnNullable, "Nullable");
+		nullability.put(DatabaseMetaData.columnNullableUnknown, "NullableUnknown");
 		
 	}
 	
@@ -296,7 +180,8 @@ public class CUDHelper {
 	}
 	public void setValue(PreparedStatement ps , int typeField, int parameterIndex, int columnIndex) throws SQLException {
 		StringBuilder text = new StringBuilder();
-		if(fieldIsInsertable(columnIndex-1)) {
+		text.append(String.format("%s.%s: %s $: ",this.tablename,metadata.getColumnName(columnIndex),CUDHelper.types.get(typeField)));
+		if(fieldIsInsertable(columnIndex)) {
 			switch(typeField) {
 			case Types.BOOLEAN: case Types.BIT:
 				ps.setBoolean(parameterIndex, Leer.leerBoolean(text.toString()));
@@ -348,6 +233,7 @@ public class CUDHelper {
 	 * @author Catalan Renegado
 	 *
 	 */
+	@Deprecated
 	public class NotPermittedException extends RuntimeException {
 		private static final long serialVersionUID = 5040948309038539896L;
 		public NotPermittedException(String operation) {

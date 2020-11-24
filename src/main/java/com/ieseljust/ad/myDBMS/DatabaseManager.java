@@ -49,20 +49,22 @@ class DatabaseManager implements Shell {
 	}
 
 	public Connection connectDatabase() throws SQLException {
+		SQLException expected = null;
 		try {
-			System.out.println("Connecting...");
 			Properties prop = new Properties();
 			prop.put("user", user);
 			prop.put("password", pass);
 			connection = DriverManager.getConnection(String.format("jdbc:mysql://%s:%s/%s", server, port, dbname), prop);
 			return connection;
 		} catch (SQLException e) {
-			if (e.toString().contains("romance'")) {
-				connection = tryAgainConnectDBMS();
-				return connection;
-			}
-			ConsoleColors.staticPrintColoredString(e.toString(), ConsoleColors.RED);
-			return null;
+			expected = e;
+		}
+		if (expected.toString().contains("romance'")) {
+			connection = tryAgainConnectDBMS();
+			return connection;
+		}
+		else {
+			throw expected;
 		}
 	}
 
@@ -94,21 +96,28 @@ class DatabaseManager implements Shell {
 		// - Gestionar els diferents errors
 		// - Si la clau primària de la taula és autoincremental, que ens mostre el
 		// valor d'aquesta quan acabe.
-		
-		 
+		try {
+			CUDHelper cud = new CUDHelper(connection,dbname,table);
+			cud.executeInsertUser();
+		} catch(SQLException e) {
+			ConsoleColors.printError("Error SQL, no se ha podido insertar\n\t"+ e);
+		}
 	}
 
 	public void showDescTable(String table) {
 		// TO-DO: Mostra la descripció de la taula indicada,
 		// mostrant: nom, tipus de dada i si pot tindre valor no nul
 		// Informeu també de les Claus Primàries i externes
+		this.showDescTable(table, false);
+	}
+	private void showDescTable(String table, boolean seeAll) {
 		try {
-			ResultSet rs = new SQLBuilder(this.connection, String.format("SELECT * FROM %s.%s limit 1;",this.dbname,table)).executeQuery();
-			DatabaseUtils.printResultSetMetadata(rs);
+			DatabaseUtils.printTableMetadata(this.connection, this.dbname, table, seeAll);
 		} catch (SQLException e) {
 			ConsoleColors.staticPrintColoredString(String.format("Error al mostrar la descripcio de la taula %s.\n\t",table) + e, ConsoleColors.RED);
-		}
+		}	
 	}
+
 
 	public boolean startShell(String command) {
 		switch (command) {
@@ -121,7 +130,13 @@ class DatabaseManager implements Shell {
 			String[] subcommand = command.split(" ");
 			switch (subcommand[0]) {
 			case "describe":
-				this.showDescTable(subcommand[1]);
+				boolean seeAll = false;
+				if(subcommand.length > 2 && subcommand[2].equals("-A")) {
+					seeAll = true;
+					this.showDescTable(subcommand[1],true);
+				} else {
+					this.showDescTable(subcommand[1]);
+				}
 				break;
 			case "insert":
 				this.insertIntoTable(subcommand[1]);
@@ -136,11 +151,10 @@ class DatabaseManager implements Shell {
 		}
 		return true;
 	}
-
 	@Override
 	public String getShellString() {
-		return ConsoleColors.GREEN_BOLD_BRIGHT + "# (" + this.user + ") on " + this.server + ":" + this.port + "/"
-				+ this.dbname + "> " + ConsoleColors.RESET;
+		return ConsoleColors.GREEN_BOLD_BRIGHT + "# (" + this.user + ") on " + this.server + ":" + this.port + "["
+				+ this.dbname + "] > " + ConsoleColors.RESET;
 	}
 	
 	public void executeSelect(String query) {
