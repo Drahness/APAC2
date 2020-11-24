@@ -1,5 +1,6 @@
 package com.ieseljust.ad.myDBMS;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -110,7 +111,7 @@ public class DatabaseUtils {
 	
 	public static void printResultSetMetadata(ResultSet rs) {
 		try {
-			List<Map<String,String>> table = getMapFromResultSetMetaData(rs);
+			List<Map<String,String>> table = new CUDHelper(rs).getMap();
 			printFormattedTable(table);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -118,7 +119,13 @@ public class DatabaseUtils {
 		}
 	}
 	
-	public static List<Map<String,String>> getMapFromResultSetMetaData(ResultSet rs) throws SQLException {
-		return new CUDHelper(rs).getMap();
+	public static void printResultSetMetadata(Connection conn, ResultSet rs) {
+		try {
+			List<Map<String,String>> table = new CUDHelper(conn,rs).getMap();
+			printFormattedTable(table);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

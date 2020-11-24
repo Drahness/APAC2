@@ -56,9 +56,8 @@ public class DBMan {
     	ResultSet rs = new SQLExecutor(conn, "select * from employees.employees e \r\n" + 
     			"right join employees.dept_emp de on de.emp_no = e.emp_no \r\n" + 
     			"left join employees.departments d on d.dept_no = de.dept_no  \nlimit 1").executeQuery();
-    	//DatabaseUtils.printResultSet(rs);
-    	DatabaseUtils.printResultSetMetadata(rs);
-    	System.out.println(new CUDHelper(conn,rs).getMap());
+
+    	DatabaseUtils.printResultSetMetadata(conn, rs);
   
 		ResultSet keys = conn.getMetaData().getPrimaryKeys("employees", null , "employees");
 		while(keys.next()) {
@@ -100,7 +99,7 @@ public class DBMan {
         stmt.execute(query);
         System.out.println("Table created ........");*/
     	
-DatabaseUtils.printResultSetMetadata(    	new SQLExecutor(conn, "select * from testdata.testtypes t ;").executeQuery());
+DatabaseUtils.printResultSetMetadata(conn,    	new SQLExecutor(conn, "select * from testdata.testtypes t ;").executeQuery());
     	//System.out.println(new ResultSetMetadata(rs).getInsertStatement());
     	/*ResultSet rs = conn.getMetaData().getTables(null, "employees", null, null);
     	ResultSetMetaData rsm = rs.getMetaData();
