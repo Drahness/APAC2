@@ -61,4 +61,5 @@ public class SQLBuilder {
 		Statement st = conn.createStatement();
 		return st.executeUpdate(sql);
 	}
+	
 }

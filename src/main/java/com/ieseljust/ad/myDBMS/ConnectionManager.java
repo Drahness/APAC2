@@ -91,7 +91,16 @@ public class ConnectionManager implements Shell {
 		}
 
 	}
-	
+	@Override
+	public void printHelp() {
+		System.out.println("Commands: ");
+		System.out.println("	[sh db | show databases] -> Show the databases");
+		System.out.println("	[info] -> Show info about the connexion");
+		System.out.println("	[use] database -> Start the database client");
+		System.out.println("	[import] file ... -> Executes the SQL script.");
+		System.out.println("	Quit ->");
+		
+	}
 	public boolean startShell(String command) {
 		switch (command) {
 		case "sh db":
@@ -148,7 +157,6 @@ public class ConnectionManager implements Shell {
 					connection.setAutoCommit(true);
 					return true;
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					ConsoleColors.staticPrintColoredString(String.format("Error en orden N%d %s\n%s",i,orden,e.toString()), ConsoleColors.RED);
 				}
 			}
@@ -167,9 +175,9 @@ public class ConnectionManager implements Shell {
 		
 			int currentChar;
 			while((currentChar = fr.read()) !=-1) {
-				if(((char) currentChar) == '\n' || ((char) currentChar) == '\r' || ((char) currentChar) == '\t') {
+				/*if(((char) currentChar) == '\n' || ((char) currentChar) == '\r' || ((char) currentChar) == '\t') {
 					continue;
-				}
+				}*/
 				sb.append((char)currentChar);
 				if(((char) currentChar) == ';') {
 					list.add(sb.toString());

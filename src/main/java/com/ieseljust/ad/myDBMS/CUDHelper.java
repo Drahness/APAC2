@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
@@ -147,12 +149,12 @@ public class CUDHelper {
 			case Types.VARCHAR: case Types.NVARCHAR:case Types.LONGNVARCHAR: case Types.LONGVARCHAR: case Types.CHAR:
 				ps.setString(parameterIndex, (String) value);
 				break;
-			/*case Types.TIME:
-				ps.setTime(parameterIndex, (Time) value);
+			case Types.TIME:
+				ps.setString(parameterIndex,value.toString());
 				break;
 			case Types.TIMESTAMP:
-				ps.setTimestamp(parameterIndex, ((Timestamp) value));
-				break;*/
+				ps.setString(parameterIndex,  value.toString());
+				break;
 			case Types.DATE: 
 				ps.setDate(parameterIndex, (Date) value);
 				break;

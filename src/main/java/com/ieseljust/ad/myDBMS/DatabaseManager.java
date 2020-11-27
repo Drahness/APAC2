@@ -118,7 +118,16 @@ class DatabaseManager implements Shell {
 		}	
 	}
 
-
+	@Override
+	public void printHelp() {
+		System.out.println("Commands: ");
+		System.out.println("	[sh tables | show tables] -> Show the tables");
+		System.out.println("	[describe | desc] tablename -> Describe the fields of a table");
+		System.out.println("	[insert] tablename -> Start the inserting client");
+		System.out.println("	[select] ... -> Executes the statement.");
+		System.out.println("	Quit ->");
+		
+	}
 	public boolean startShell(String command) {
 		switch (command) {
 		case "sh tables":
@@ -129,7 +138,7 @@ class DatabaseManager implements Shell {
 		default:
 			String[] subcommand = command.split(" ");
 			switch (subcommand[0]) {
-			case "describe":
+			case "describe": case "desc":
 				boolean seeAll = false;
 				if(subcommand.length > 2 && subcommand[2].equals("-A")) {
 					seeAll = true;
@@ -164,6 +173,4 @@ class DatabaseManager implements Shell {
 			ConsoleColors.staticPrintColoredString("Error en la consulta: \n\t"+e, ConsoleColors.RED);
 		}
 	}
-
-
 }
